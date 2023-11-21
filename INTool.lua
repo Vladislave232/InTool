@@ -382,7 +382,7 @@ local speakid = ''
 
 local obnova = {
     obnova = {
-        vers = '2',
+        vers = 2,
         script_vers_text = '1.00 PATH',
     },
 }
@@ -907,23 +907,7 @@ function main()
     hotkey.RegisterCallback('refresh', bindKeys.refresh, binds.refresh)
     hotkey.RegisterCallback('leader', bindKeys.leader, binds.leader)
     imgui.Process = true
-    async_http_request('GET', 'https://raw.githubusercontent.com/Vladislave232/InTool/main/uploader.txt', 
-        {
-            headers = {
-                ['Content-Type'] = 'application/json'
-            },
-        },
-        function(response)
-            if response.status_code == 200 then
-                version, versionT = response.text:match('version = (.*)\nversionT = (.*)')
-                print(version, versionT)
-            end
-        end,
-        function(err)
-            print("Ошибка: " .. err)
-        end
-    )
-
+    checkupdates()
     while true do
         wait(0)
         if massiv.imCarcos[0] then
@@ -1266,6 +1250,35 @@ function main()
             end
         end
     end
+end
+
+function checkupdates()
+    async_http_request('GET', 'https://raw.githubusercontent.com/Vladislave232/InTool/main/uploader.txt', 
+    {
+        headers = {
+            ['Content-Type'] = 'application/json'
+        },
+    },
+    function(response)
+        if response.status_code == 200 then
+            version, versionT = response.text:match('version = (.*)\nversionT = (.*)')
+            print(version)
+            if tonumber(version) > obnova.obnova.vers then
+                downloadUrlToFile('https://raw.githubusercontent.com/Vladislave232/InTool/main/INTool.lua', thisScript().path, function(id, status, p1, p2)
+                    if status == dlstatus.STATUS_ENDDOWNLOADDATA then
+                        sampAddChatMessage('{FF0000}[InTool] {ffffff}Ожидайте! Мы совсем близко к обновлению :)')
+                        thisScript():reload()
+                    end
+                end)
+            else
+                sampAddChatMessage('Еще рано :(', -1)
+            end
+        end
+    end,
+    function(err)
+        print("Ошибка: " .. err)
+    end
+)
 end
 
 local fa = require("fAwesome5")
