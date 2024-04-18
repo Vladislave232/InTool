@@ -1,2 +1,2 @@
-version = 5
-versionT = "1.01"
+version = 8
+versionT = "1.01 HOTFIX_3"
